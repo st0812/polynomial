@@ -26,8 +26,7 @@ TEST(Poly, Add_Min)
 	Poly a = Poly_Init(coef_a,1);
 	Poly b = Poly_Init(coef_b,1);
 	Poly c = Poly_Add(a,b);
-	unsigned int coef_c[1];
-	Poly_Coefs(c,coef_c);
+	const unsigned int* coef_c=Poly_Data(c);
 	LONGS_EQUAL(0,coef_c[0]);
 	LONGS_EQUAL(0,Poly_Degree(c));
 };
@@ -39,8 +38,7 @@ TEST(Poly, Add_Typ1)
 	Poly a = Poly_Init(coef_a,2);
 	Poly b = Poly_Init(coef_b,3);
 	Poly c = Poly_Add(a,b);
-	unsigned int coef_c[3];
-	Poly_Coefs(c,coef_c);
+	const unsigned int* coef_c=Poly_Data(c);
 	LONGS_EQUAL(0,coef_c[0]);
 	LONGS_EQUAL(6,coef_c[1]);
 	LONGS_EQUAL(14,coef_c[2]);
@@ -54,8 +52,7 @@ TEST(Poly, Add_Max)
 	Poly a = Poly_Init(coef_a,1);
 	Poly b = Poly_Init(coef_b,1);
 	Poly c = Poly_Add(a,b);
-	unsigned int coef[1];
-	Poly_Coefs(c,coef);
+	const unsigned int* coef=Poly_Data(c);
 	LONGS_EQUAL(0,coef[0]);
 	LONGS_EQUAL(0,Poly_Degree(c));
 };
@@ -68,8 +65,7 @@ TEST(Poly, Mul)
 	Poly a = Poly_Init(coef_a,2);
 	Poly b = Poly_Init(coef_b,2);
 	Poly c = Poly_Mul(a,b);
-	unsigned int coef[3];
-	Poly_Coefs(c,coef);
+	const unsigned int* coef=Poly_Data(c);
 	LONGS_EQUAL(11,coef[0]);
 	LONGS_EQUAL(5,coef[1]);
 	LONGS_EQUAL(4,coef[2]);
@@ -82,8 +78,7 @@ TEST(Poly, Mul2)
 	Poly a = Poly_Init(coef_a,2);
 	Poly b = Poly_Init(coef_b,3);
 	Poly c = Poly_Mul(a,b);
-	unsigned int coef[4];
-	Poly_Coefs(c,coef);
+	const unsigned int* coef=Poly_Data(c);
 	LONGS_EQUAL(0,coef[0]);
 	LONGS_EQUAL(0,coef[1]);
 	LONGS_EQUAL(0,coef[2]);
@@ -97,8 +92,7 @@ TEST(Poly, Mod)
 	Poly a = Poly_Init(coef_a,2);
 	Poly b = Poly_Init(coef_b,2);
 	Poly c = Poly_Mod(a,b);
-	unsigned int coef[1];
-	Poly_Coefs(c,coef);
+	const unsigned int* coef=Poly_Data(c);
 	LONGS_EQUAL(13,coef[0]);
 };
 
@@ -110,23 +104,22 @@ TEST(Poly, Mod2)
 	Poly a = Poly_Init(coef_a,3);
 	Poly b = Poly_Init(coef_b,2);
 	Poly c = Poly_Mod(a,b);
-	unsigned int coef[1];
-	Poly_Coefs(c,coef);
+	const unsigned int* coef=Poly_Data(c);
 	LONGS_EQUAL(0,coef[0]);
 };
 
-TEST(Poly, Substitute1)
+TEST(Poly, Eval1)
 {
 	unsigned int coef_a[1] = {5};
 	Poly a = Poly_Init(coef_a,1);
-	LONGS_EQUAL(5,Poly_Substitute(a,10));
+	LONGS_EQUAL(5,Poly_Eval(a,10));
 }
 
-TEST(Poly, Substitute2)
+TEST(Poly, Eval2)
 {
 	unsigned int coef_a[2] = {1,1};
 	Poly a = Poly_Init(coef_a,2);
-	LONGS_EQUAL(4,Poly_Substitute(a,5));
+	LONGS_EQUAL(4,Poly_Eval(a,5));
 }
 
 

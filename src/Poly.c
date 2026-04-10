@@ -9,10 +9,9 @@ struct PolyStruct{
 	unsigned int* coef;
 	unsigned int len;
 };
-
 static int Poly_IsZero(const Poly);
 
-Poly Poly_Init(unsigned int* coef, unsigned int len){
+Poly Poly_Init(const unsigned int* coef, unsigned int len){
 	assert(coef);
 	assert(len>0);
 
@@ -38,6 +37,33 @@ cleanup:
 	return NULL;
 }
 
+Poly Poly_Copy(const Poly p){
+	assert(p);
+	return Poly_Init(p->coef,p->len);
+
+}
+
+void Poly_Free(Poly p){
+	if(!p)return;
+	free(p->coef);
+	free(p);
+}
+
+unsigned int Poly_Degree(const Poly p){
+	assert(p);
+	return p->len-1;
+}
+
+unsigned int Poly_Length(const Poly p){
+	assert(p);
+	return p->len;
+}
+const unsigned int * Poly_Data(const Poly p){
+	assert(p);
+	return p->coef;
+}
+
+
 Poly Poly_Add(const Poly a, const Poly b){
 	assert(a);
 	assert(b);
@@ -48,12 +74,11 @@ Poly Poly_Add(const Poly a, const Poly b){
 
 	coef = (unsigned int*)malloc(sizeof(unsigned int)*len);
 	if(!coef)return NULL;
-	memset(coef,0,len*sizeof(unsigned int));
-	for(unsigned int i = 0 ; i< a->len; i++){
-		coef[i] = GF_Add(coef[i],a->coef[i]);
-	}
-	for(unsigned int i = 0 ; i< b->len; i++){
-		coef[i] = GF_Add(coef[i],b->coef[i]);
+
+	for (unsigned int i = 0; i < len; i++) {
+    		unsigned int ac = (i < a->len) ? a->coef[i] : 0;
+    		unsigned int bc = (i < b->len) ? b->coef[i] : 0;
+    		coef[i] = GF_Add(ac, bc);
 	}
 	c = Poly_Init(coef,len);
 	free(coef);
@@ -92,22 +117,22 @@ Poly Poly_Mod(const Poly a, const Poly b){
 	assert(b);
 	assert(!Poly_IsZero(b));
 
-	Poly r= NULL, new_r=NULL, tmp=NULL, q=NULL;
+	Poly r= NULL, new_r=NULL, tmp=NULL, tmp2 =NULL;
 	r = Poly_Copy(a);
 	if(!r)goto cleanup;
 	while(r->len>=b->len){
 		unsigned int coef=GF_Div(r->coef[r->len-1],b->coef[b->len-1]);
 		unsigned int degree = r->len-b->len;
-		q = Poly_CreateMono(coef,degree);
-		if(!q)goto cleanup;
-		tmp = Poly_Mul(q,b);
+		tmp=Poly_Scale(b,coef);
 		if(!tmp)goto cleanup;
-		Poly_Free(q);
-		q=NULL;
-		new_r = Poly_Sub(r,tmp);
-		if(!new_r)goto cleanup;
+		tmp2 = Poly_Shift(tmp,degree);
 		Poly_Free(tmp);
 		tmp=NULL;
+		if(!tmp2)goto cleanup;
+		new_r = Poly_Sub(r,tmp2);
+		Poly_Free(tmp2);
+		tmp2=NULL;
+		if(!new_r)goto cleanup;
 		Poly_Free(r);
 		r=new_r;
 	}
@@ -116,25 +141,34 @@ cleanup:
 	Poly_Free(r);
 	Poly_Free(new_r);
 	Poly_Free(tmp);
-	Poly_Free(q);
+	Poly_Free(tmp2);
 	return NULL;
 }
 
-Poly Poly_CreateMono(unsigned int coef, unsigned int degree){
-	Poly p = NULL;
-	unsigned int* coefs = (unsigned int *)malloc(sizeof(unsigned int)*(degree+1));
-	if(!coefs)return NULL;
-	memset(coefs,0,sizeof(unsigned int)*(degree+1));
-	coefs[degree]=coef;
-	p= Poly_Init(coefs, degree+1);
-	free(coefs);
-	if(!p)return NULL;
-	return p;
+
+Poly Poly_Scale(const Poly p, unsigned int scalar){
+	assert(p);
+	Poly tmp=Poly_Init(&scalar,1);
+	if(!tmp)return NULL;
+	Poly result=Poly_Mul(p,tmp);
+	Poly_Free(tmp);
+	return result;
 }
 
+Poly Poly_Shift(const Poly p, unsigned int degree){
+	assert(p);
+  	Poly result = NULL;
+        unsigned int* coefs = (unsigned int *)malloc(sizeof(unsigned int)*(degree+p->len));
+        if(!coefs)return NULL;
+        memset(coefs,0,sizeof(unsigned int)*degree);
+	memcpy(coefs+degree,p->coef,sizeof(unsigned int)*p->len);
+        result= Poly_Init(coefs, degree+p->len);
+        free(coefs);
+        if(!result)return NULL;
+        return result;	
+}
 
-
-unsigned int Poly_Substitute(const Poly p, unsigned int a){
+unsigned int Poly_Eval(const Poly p, unsigned int a){
 	assert(p);
 	unsigned int ans = 0;
 	for(unsigned int i=p->len;i-- >0;){
@@ -143,25 +177,7 @@ unsigned int Poly_Substitute(const Poly p, unsigned int a){
 	}
 	return ans;
 }
-unsigned int Poly_Degree(const Poly p){
-	return p->len-1;
-}
-void Poly_Coefs(const Poly p, unsigned int * coefs){
-	memcpy(coefs, p->coef, p->len*sizeof(unsigned int));
 
-}
-
-Poly Poly_Copy(const Poly p){
-	assert(p);
-	return Poly_Init(p->coef,p->len);
-
-}
-
-void Poly_Free(Poly p){
-	if(!p)return;
-	free(p->coef);
-	free(p);
-}
 
 static int Poly_IsZero(const Poly p){
 	assert(p);
