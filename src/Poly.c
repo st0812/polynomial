@@ -98,7 +98,7 @@ Poly Poly_Mod(const Poly a, const Poly b){
 	while(r->len>=b->len){
 		unsigned int coef=GF_Div(r->coef[r->len-1],b->coef[b->len-1]);
 		unsigned int degree = r->len-b->len;
-		q = Poly_GetMono(coef,degree);
+		q = Poly_CreateMono(coef,degree);
 		if(!q)goto cleanup;
 		tmp = Poly_Mul(q,b);
 		if(!tmp)goto cleanup;
@@ -119,7 +119,7 @@ cleanup:
 	return NULL;
 }
 
-Poly Poly_GetMono(unsigned int coef, unsigned int degree){
+Poly Poly_CreateMono(unsigned int coef, unsigned int degree){
 	Poly p = NULL;
 	unsigned int* coefs = (unsigned int *)malloc(sizeof(unsigned int)*(degree+1));
 	if(!coefs)return NULL;
@@ -142,11 +142,12 @@ unsigned int Poly_Substitute(const Poly p, unsigned int a){
 	}
 	return ans;
 }
+unsigned int Poly_Degree(const Poly p){
+	return p->len-1;
+}
+void Poly_Coefs(const Poly p, unsigned int * coefs){
+	memcpy(coefs, p->coef, p->len*sizeof(unsigned int));
 
-unsigned int Poly_GetCoef(const Poly p, unsigned int i){
-	assert(p);
-	assert(i<(p->len));
-	return p->coef[i];
 }
 
 Poly Poly_Copy(const Poly p){
