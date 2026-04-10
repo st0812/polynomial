@@ -15,26 +15,6 @@ TEST_GROUP(Poly)
 	}
 };
 
-TEST(Poly, GetDegree_Min)
-{	
-	unsigned int coef[1] = {0};
-	Poly p = Poly_Init(coef,1);
-	LONGS_EQUAL(0,Poly_GetDegree(p));
-};
-
-TEST(Poly, GetDegree_Typ1)
-{	
-	unsigned int coef[3] = {1,1,1};
-	Poly p = Poly_Init(coef,3);
-	LONGS_EQUAL(2,Poly_GetDegree(p));
-}
-
-TEST(Poly, GetDegree_Typ2)
-{	
-	unsigned int coef[3] = {1,1,0};
-	Poly p = Poly_Init(coef,3);
-	LONGS_EQUAL(1,Poly_GetDegree(p));
-}
 
 
 

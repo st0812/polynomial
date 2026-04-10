@@ -96,7 +96,7 @@ Poly Poly_Mod(const Poly a, const Poly b){
 	r = Poly_Copy(a);
 	if(!r)goto cleanup;
 	while(r->len>=b->len){
-		unsigned int coef=GF_Div(Poly_GetCoef(r,r->len-1),Poly_GetCoef(b,b->len-1));
+		unsigned int coef=GF_Div(r->coef[r->len-1],b->coef[b->len-1]);
 		unsigned int degree = r->len-b->len;
 		q = Poly_GetMono(coef,degree);
 		if(!q)goto cleanup;
@@ -132,10 +132,6 @@ Poly Poly_GetMono(unsigned int coef, unsigned int degree){
 }
 
 
-unsigned int Poly_GetDegree(const Poly p){
-	assert(p);
-	return p->len-1;
-}
 
 unsigned int Poly_Substitute(const Poly p, unsigned int a){
 	assert(p);
