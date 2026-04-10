@@ -114,6 +114,7 @@ Poly Poly_Mod(const Poly a, const Poly b){
 	return r;
 cleanup:
 	Poly_Free(r);
+	Poly_Free(new_r);
 	Poly_Free(tmp);
 	Poly_Free(q);
 	return NULL;
