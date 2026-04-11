@@ -5,11 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 struct PolyStruct{
 	unsigned int* coef;
-	unsigned int len;
+	size_t len;
 };
 static int Poly_IsZero(const Poly);
+static Poly Poly_Copy(const Poly p);
+static Poly Poly_Scale(const Poly p, unsigned int scalar);
+static Poly Poly_Shift(const Poly p, unsigned int degree);
 
 Poly Poly_Init(const unsigned int* coef, unsigned int len){
 	assert(coef);
@@ -18,8 +22,9 @@ Poly Poly_Init(const unsigned int* coef, unsigned int len){
 	Poly poly = NULL;
 	poly = (Poly)malloc(sizeof(struct PolyStruct));
 	if(!poly)goto cleanup;
-	unsigned int new_len=0;
-	for(unsigned int i=len;i-->0;){
+	//配列長の正規化 
+	size_t new_len=0;
+	for(size_t i=len;i-->0;){
 		if(coef[i] != 0 ){
 			new_len = i+1;
 			break;
@@ -37,24 +42,13 @@ cleanup:
 	return NULL;
 }
 
-Poly Poly_Copy(const Poly p){
-	assert(p);
-	return Poly_Init(p->coef,p->len);
-
-}
-
 void Poly_Free(Poly p){
 	if(!p)return;
 	free(p->coef);
 	free(p);
 }
 
-unsigned int Poly_Degree(const Poly p){
-	assert(p);
-	return p->len-1;
-}
-
-unsigned int Poly_Length(const Poly p){
+size_t Poly_Length(const Poly p){
 	assert(p);
 	return p->len;
 }
@@ -62,7 +56,6 @@ const unsigned int * Poly_Data(const Poly p){
 	assert(p);
 	return p->coef;
 }
-
 
 Poly Poly_Add(const Poly a, const Poly b){
 	assert(a);
@@ -145,9 +138,20 @@ cleanup:
 	return NULL;
 }
 
-
-Poly Poly_Scale(const Poly p, unsigned int scalar){
+unsigned int Poly_Eval(const Poly p, unsigned int a){
 	assert(p);
+
+	unsigned int ans = 0;
+	for(size_t i=p->len;i-- >0;){
+		//ホーナー法
+		ans = GF_Add(GF_Mul(ans,a),p->coef[i]);
+	}
+	return ans;
+}
+
+static Poly Poly_Scale(const Poly p, unsigned int scalar){
+	assert(p);
+
 	Poly tmp=Poly_Init(&scalar,1);
 	if(!tmp)return NULL;
 	Poly result=Poly_Mul(p,tmp);
@@ -155,8 +159,9 @@ Poly Poly_Scale(const Poly p, unsigned int scalar){
 	return result;
 }
 
-Poly Poly_Shift(const Poly p, unsigned int degree){
+static Poly Poly_Shift(const Poly p, unsigned int degree){
 	assert(p);
+
   	Poly result = NULL;
         unsigned int* coefs = (unsigned int *)malloc(sizeof(unsigned int)*(degree+p->len));
         if(!coefs)return NULL;
@@ -168,20 +173,14 @@ Poly Poly_Shift(const Poly p, unsigned int degree){
         return result;	
 }
 
-unsigned int Poly_Eval(const Poly p, unsigned int a){
-	assert(p);
-	unsigned int ans = 0;
-	for(unsigned int i=p->len;i-- >0;){
-		//ホーナー法
-		ans = GF_Add(GF_Mul(ans,a),p->coef[i]);
-	}
-	return ans;
-}
-
-
 static int Poly_IsZero(const Poly p){
 	assert(p);
+
 	return (p->len == 1 && p->coef[0]==0);
 }
 
+static Poly Poly_Copy(const Poly p){
+	assert(p);
 
+	return Poly_Init(p->coef,p->len);
+}
