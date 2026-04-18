@@ -11,4 +11,5 @@ Poly Poly_Sub(const Poly a, const Poly b);
 Poly Poly_Mul(const Poly a, const Poly b);
 Poly Poly_Mod(const Poly a, const Poly b);
 unsigned int Poly_Eval(const Poly p, unsigned int a);
+Poly Poly_Copy(const Poly p);
 #endif

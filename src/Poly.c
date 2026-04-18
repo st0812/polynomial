@@ -11,7 +11,6 @@ struct PolyStruct{
 	size_t len;
 };
 static int Poly_IsZero(const Poly);
-static Poly Poly_Copy(const Poly p);
 static Poly Poly_Scale(const Poly p, unsigned int scalar);
 static Poly Poly_Shift(const Poly p, unsigned int degree);
 
@@ -179,7 +178,7 @@ static int Poly_IsZero(const Poly p){
 	return (p->len == 1 && p->coef[0]==0);
 }
 
-static Poly Poly_Copy(const Poly p){
+ Poly Poly_Copy(const Poly p){
 	assert(p);
 
 	return Poly_Init(p->coef,p->len);
